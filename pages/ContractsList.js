@@ -8,14 +8,7 @@ import AddIcon from '@material-ui/icons/Add';
 import IconButton from '@material-ui/core/IconButton';
 import {Modal} from '@material-ui/core';
 import styled from 'styled-components';
-import {
-  ImageSideButton,
-  Block,
-  addNewBlock,
-  createEditorState,
-  Editor,
-  BLOCK_BUTTONS,
-} from 'medium-draft';
+import {createEditorState, Editor, BLOCK_BUTTONS} from 'medium-draft';
 import mediumDraftExporter from 'medium-draft/lib/exporter';
 import {convertToRaw} from 'draft-js';
 import mediumDraftImporter from 'medium-draft/lib/importer';
@@ -137,6 +130,7 @@ const columns = [
 
 const Index = () => {
   const [contracts, setContracts] = useState([]);
+  const [editorState, setEditorState] = useState(createEditorState());
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [selectedContract, setSelectedContract] = useState({
     name: '',
@@ -156,6 +150,16 @@ const Index = () => {
         setContracts(contractsFromFirestore);
       }),
     [],
+  );
+
+  useEffect(
+    () =>
+      setSelectedContract(c => ({
+        ...c,
+        html: mediumDraftExporter(editorState.getCurrentContent()),
+      })),
+
+    [editorState],
   );
 
   useEffect(() => {
@@ -179,6 +183,9 @@ const Index = () => {
   const editContract = id => {
     const contract = contracts.find(contract => contract.id === id);
     setSelectedContract(contract);
+    setEditorState(
+      createEditorState(convertToRaw(mediumDraftImporter(contract.html))),
+    );
     setModalIsOpen(true);
   };
 
@@ -225,16 +232,8 @@ const Index = () => {
               value={selectedContract.name}
             />
             <Editor
-              editorState={createEditorState(
-                selectedContract.html &&
-                  convertToRaw(mediumDraftImporter(selectedContract.html)),
-              )}
-              onChange={s =>
-                setSelectedContract(c => ({
-                  ...c,
-                  html: mediumDraftExporter(s.getCurrentContent()),
-                }))
-              }
+              editorState={editorState}
+              onChange={setEditorState}
               blockButtons={blockButtons}
               toolbarConfig={toolbarConfig}
             />

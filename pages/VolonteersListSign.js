@@ -1,4 +1,4 @@
-import {useEffect, useState} from 'react';
+import {useEffect, useState, useRef} from 'react';
 import Link from 'next/link';
 import {DataGrid} from 'tubular-react';
 import {ColumnModel} from 'tubular-common';
@@ -180,6 +180,7 @@ const Index = () => {
     hours: '',
   });
   const [selectedContract, setSelectedContract] = useState();
+  const SignatureRef = useRef();
 
   useEffect(
     () =>
@@ -244,7 +245,17 @@ const Index = () => {
                   maxWidth: 10,
                   penColor: 'rgb(66, 133, 244)',
                 }}
+                ref={ref => (SignatureRef.current = ref)}
               />
+              <button
+                onClick={() =>
+                  console.log(
+                    SignatureRef.current && SignatureRef.current.toDataURL(),
+                  )
+                }
+              >
+                finir
+              </button>
             </>
           ) : (
             <ChooseContract setSelectedContract={setSelectedContract} />

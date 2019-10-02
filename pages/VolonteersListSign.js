@@ -8,6 +8,7 @@ import AddIcon from '@material-ui/icons/Add';
 import IconButton from '@material-ui/core/IconButton';
 import {Modal} from '@material-ui/core';
 import styled from 'styled-components';
+import SignaturePad from 'react-signature-pad-wrapper';
 
 const TextInput = styled.input.attrs({type: 'text'})`
   background: rgba(100, 100, 100, 0.24);
@@ -84,6 +85,22 @@ const CenteredModal = styled(Modal)`
   align-items: center;
 `;
 
+const columnsContracts = [
+  new ColumnModel('name', {
+    Name: 'name',
+    DataType: 'STRING',
+    Filterable: true,
+    Label: 'Nom du contrat',
+    Searchable: true,
+    Sortable: true,
+  }),
+  new ColumnModel('id', {
+    Name: 'id',
+    IsKey: true,
+    Visible: false,
+  }),
+];
+
 const ChooseContract = ({setSelectedContract}) => {
   const [contracts, setContracts] = useState([]);
 
@@ -102,15 +119,17 @@ const ChooseContract = ({setSelectedContract}) => {
     [],
   );
 
+  console.log(contracts);
+
   return (
     <>
       <DataGrid
-        columns={columns}
+        columns={columnsContracts}
         dataSource={contracts}
         gridName="Liste des contrats"
         onError="Erreur de mise a jour des contrats"
         onRowClick={e =>
-          setSelectedContract({...contracts.find(e.target.id), id: e.target.id})
+          setSelectedContract({...contracts.find(c => c.id === e.id), id: e.id})
         }
       />
     </>
@@ -211,9 +230,24 @@ const Index = () => {
       >
         <ModalChild>
           {selectedContract ? (
-            <div>test</div>
+            <>
+              <div
+                dangerouslySetInnerHTML={{
+                  __html: selectedContract.html
+                    .replace('${lastname}', selectedVolonteer.lastname)
+                    .replace('${firstname}', selectedVolonteer.firstname),
+                }}
+              ></div>
+              <SignaturePad
+                options={{
+                  minWidth: 5,
+                  maxWidth: 10,
+                  penColor: 'rgb(66, 133, 244)',
+                }}
+              />
+            </>
           ) : (
-            <ChooseContract onRowClick={setSelectedContract} />
+            <ChooseContract setSelectedContract={setSelectedContract} />
           )}
         </ModalChild>
       </CenteredModal>

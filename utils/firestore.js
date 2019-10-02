@@ -1,7 +1,7 @@
 import firebase from 'firebase';
 require('firebase/firestore');
 
-const firebaseConfig = {
+const config = {
   apiKey: 'AIzaSyA2zBzfHI7ekXXjjayg7f9x-JnVA5vsgqA',
   authDomain: 'signin-test-7500f.firebaseapp.com',
   databaseURL: 'https://signin-test-7500f.firebaseio.com',
@@ -11,4 +11,6 @@ const firebaseConfig = {
   appId: '1:215992674591:web:a405357d05238a549a682a',
 };
 
-export const firestore = firebase.firestore();
+export default !firebase.apps.length
+  ? firebase.initializeApp(config).firestore()
+  : firebase.app().firestore();

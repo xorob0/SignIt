@@ -160,7 +160,6 @@ const Index = () => {
 
   useEffect(() => {
     const {id, ...data} = selectedContract;
-    console.log(selectedContract);
     if (id) {
       firestore
         .collection('contracts')
@@ -181,6 +180,12 @@ const Index = () => {
     const contract = contracts.find(contract => contract.id === id);
     setSelectedContract(contract);
     setModalIsOpen(true);
+  };
+
+  const addToFirebase = () => {
+    if (selectedContract.name.length) {
+      firestore.collection('contracts').add(selectedContract);
+    }
   };
 
   return (
@@ -212,11 +217,6 @@ const Index = () => {
       >
         <ModalChild>
           <Column padding={20}>
-            <div
-              dangerouslySetInnerHTML={{
-                __html: selectedContract.html,
-              }}
-            />
             <TextInput
               placeholder="Nom du contrat"
               onChange={e =>
@@ -229,11 +229,16 @@ const Index = () => {
                 selectedContract.html &&
                   convertToRaw(mediumDraftImporter(selectedContract.html)),
               )}
-              onChange={s => mediumDraftExporter(s.getCurrentContent())}
+              onChange={s =>
+                setSelectedContract(c => ({
+                  ...c,
+                  html: mediumDraftExporter(s.getCurrentContent()),
+                }))
+              }
               blockButtons={blockButtons}
               toolbarConfig={toolbarConfig}
             />
-            <StartButton type="submit">Ajouter</StartButton>
+            <StartButton onClick={addToFirebase}>Ajouter</StartButton>
           </Column>
         </ModalChild>
       </CenteredModal>

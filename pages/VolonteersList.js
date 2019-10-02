@@ -8,9 +8,8 @@ import AddIcon from '@material-ui/icons/Add';
 import IconButton from '@material-ui/core/IconButton';
 import {Modal} from '@material-ui/core';
 import styled from 'styled-components';
-import {Formik, Field, Form, ErrorMessage} from 'formik';
 
-const StyledInput = styled.input.attrs({type: 'text'})`
+const TextInput = styled.input.attrs({type: 'text'})`
   background: rgba(100, 100, 100, 0.24);
   border-radius: 20px;
   border: 0px;
@@ -23,18 +22,6 @@ const StyledInput = styled.input.attrs({type: 'text'})`
     color: #eee;
   }
 `;
-
-export const TextInput = ({
-  field: {value, name},
-  form: {setFieldValue},
-  placeholder,
-}) => (
-  <StyledInput
-    onChange={e => setFieldValue(name, e.target.value)}
-    value={value}
-    placeholder={placeholder}
-  />
-);
 
 export const StartButton = styled.button`
   background: #ffc613;
@@ -98,12 +85,21 @@ const CenteredModal = styled(Modal)`
 `;
 
 const columns = [
-  new ColumnModel('name', {
-    Name: 'name',
+  new ColumnModel('firstname', {
+    Name: 'firstname',
     DataType: 'STRING',
     Filterable: true,
     IsKey: true,
-    Label: 'Nom du bénévole',
+    Label: 'Prénom',
+    Searchable: true,
+    Sortable: true,
+  }),
+  new ColumnModel('lastname', {
+    Name: 'lastname',
+    DataType: 'STRING',
+    Filterable: true,
+    IsKey: true,
+    Label: 'Nom',
     Searchable: true,
     Sortable: true,
   }),
@@ -111,8 +107,22 @@ const columns = [
 ];
 
 const Index = () => {
-  const [contracts, setContracts] = useState([]);
+  const [volonteers, setVolonteers] = useState([]);
   const [modalIsOpen, setModalIsOpen] = useState(false);
+  const [selectedVolonteer, setSelectedVolonteer] = useState({
+    lastname: '',
+    firstname: '',
+    email: '',
+    phone: '',
+    address: '',
+    city: '',
+    zip: '',
+    date: '',
+    role: '',
+    schedule: '',
+    hours: '',
+  });
+
   useEffect(
     () =>
       firestore.collection('volonteers').onSnapshot(querySnapshot => {
@@ -120,7 +130,7 @@ const Index = () => {
         querySnapshot.forEach(doc => {
           contractsFromFirestore = [...contractsFromFirestore, doc.data()];
         });
-        setContracts(contractsFromFirestore);
+        setVolonteers(contractsFromFirestore);
       }),
     [],
   );
@@ -132,6 +142,10 @@ const Index = () => {
       </IconButton>
     ),
   });
+
+  const addToFirebase = () => {
+    firestore.collection('volonteers').add(selectedVolonteer);
+  };
 
   return (
     <>
@@ -148,7 +162,7 @@ const Index = () => {
 
       <DataGrid
         columns={columns}
-        dataSource={contracts}
+        dataSource={volonteers}
         gridName="Liste des bénévoles"
         onError="Erreur de mise a jour des bénévoles"
         onRowClick={e => console.log('clicked on bénévole', e)}
@@ -161,37 +175,86 @@ const Index = () => {
         onClose={() => setModalIsOpen(false)}
       >
         <ModalChild>
-          <Formik
-            initialValues={{name: '', email: ''}}
-            onSubmit={({name, email}) => {
-              firestore
-                .collection('volonteers')
-                .add({
-                  name,
-                  email,
-                })
-                .catch(error => {
-                  console.error('Error adding document: ', error);
-                });
-            }}
-            render={() => (
-              <Column as={Form} padding={20}>
-                <Field
-                  component={TextInput}
-                  name="name"
-                  placeholder="Nom du bénévole"
-                />
-                <ErrorMessage name="name" />
-                <Field
-                  component={TextInput}
-                  name="email"
-                  placeholder="Email du bénévole"
-                />
-                <ErrorMessage name="email" />
-                <StartButton type="submit">Ajouter</StartButton>
-              </Column>
-            )}
-          />
+          <Column padding={20}>
+            <TextInput
+              value={selectedVolonteer.lastname}
+              onChange={e =>
+                setSelectedVolonteer(s => ({...s, lastname: e.target.value}))
+              }
+              placeholder="Nom"
+            />
+            <TextInput
+              value={selectedVolonteer.firstname}
+              onChange={e =>
+                setSelectedVolonteer(s => ({...s, firstname: e.target.value}))
+              }
+              placeholder="Prénom"
+            />
+            <TextInput
+              value={selectedVolonteer.email}
+              onChange={e =>
+                setSelectedVolonteer(s => ({...s, email: e.target.value}))
+              }
+              placeholder="Email"
+            />
+            <TextInput
+              value={selectedVolonteer.phone}
+              onChange={e =>
+                setSelectedVolonteer(s => ({...s, phone: e.target.value}))
+              }
+              placeholder="Numéro de téléphone"
+            />
+            <TextInput
+              value={selectedVolonteer.address}
+              onChange={e =>
+                setSelectedVolonteer(s => ({...s, address: e.target.value}))
+              }
+              placeholder="Adresse"
+            />
+            <TextInput
+              value={selectedVolonteer.city}
+              onChange={e =>
+                setSelectedVolonteer(s => ({...s, city: e.target.value}))
+              }
+              placeholder="Localité"
+            />
+            <TextInput
+              value={selectedVolonteer.zip}
+              onChange={e =>
+                setSelectedVolonteer(s => ({...s, zip: e.target.value}))
+              }
+              placeholder="Code postal"
+            />
+            <TextInput
+              value={selectedVolonteer.date}
+              onChange={e =>
+                setSelectedVolonteer(s => ({...s, date: e.target.value}))
+              }
+              placeholder="Date du contrat"
+            />
+            <TextInput
+              value={selectedVolonteer.role}
+              onChange={e =>
+                setSelectedVolonteer(s => ({...s, role: e.target.value}))
+              }
+              placeholder="Fonction"
+            />
+            <TextInput
+              value={selectedVolonteer.schedule}
+              onChange={e =>
+                setSelectedVolonteer(s => ({...s, schedule: e.target.value}))
+              }
+              placeholder="Fonction"
+            />
+            <TextInput
+              value={selectedVolonteer.hours}
+              onChange={e =>
+                setSelectedVolonteer(s => ({...s, hours: e.target.value}))
+              }
+              placeholder="Temps total"
+            />
+            <StartButton onClick={addToFirebase}>Ajouter</StartButton>
+          </Column>
         </ModalChild>
       </CenteredModal>
     </>

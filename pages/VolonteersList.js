@@ -104,6 +104,11 @@ const columns = [
     Sortable: true,
   }),
   new ColumnModel('email'),
+  new ColumnModel('id', {
+    Name: 'id',
+    IsKey: true,
+    Visible: false,
+  }),
 ];
 
 const Index = () => {
@@ -128,7 +133,10 @@ const Index = () => {
       firestore.collection('volonteers').onSnapshot(querySnapshot => {
         let contractsFromFirestore = [];
         querySnapshot.forEach(doc => {
-          contractsFromFirestore = [...contractsFromFirestore, doc.data()];
+          contractsFromFirestore = [
+            ...contractsFromFirestore,
+            {...doc.data(), id: doc.id},
+          ];
         });
         setVolonteers(contractsFromFirestore);
       }),
@@ -142,6 +150,12 @@ const Index = () => {
       </IconButton>
     ),
   });
+
+  const editVolonteer = id => {
+    const volonteer = volonteers.find(volonteer => volonteer.id === id);
+    setSelectedVolonteer(volonteer);
+    setModalIsOpen(true);
+  };
 
   const addToFirebase = () => {
     firestore.collection('volonteers').add(selectedVolonteer);
@@ -165,7 +179,7 @@ const Index = () => {
         dataSource={volonteers}
         gridName="Liste des bénévoles"
         onError="Erreur de mise a jour des bénévoles"
-        onRowClick={e => console.log('clicked on bénévole', e)}
+        onRowClick={e => editVolonteer(e.id)}
         toolbarOptions={toolbarButton}
       />
       <CenteredModal

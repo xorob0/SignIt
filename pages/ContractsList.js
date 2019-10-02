@@ -8,7 +8,6 @@ import AddIcon from '@material-ui/icons/Add';
 import IconButton from '@material-ui/core/IconButton';
 import {Modal} from '@material-ui/core';
 import styled from 'styled-components';
-import {Formik, Field, Form, ErrorMessage} from 'formik';
 import {
   ImageSideButton,
   Block,
@@ -18,6 +17,9 @@ import {
   BLOCK_BUTTONS,
 } from 'medium-draft';
 import mediumDraftExporter from 'medium-draft/lib/exporter';
+import {convertToRaw} from 'draft-js';
+import mediumDraftImporter from 'medium-draft/lib/importer';
+
 import 'medium-draft/lib/index.css';
 
 const blockButtons = [
@@ -54,17 +56,7 @@ const StyledInput = styled.input.attrs({type: 'text'})`
   }
 `;
 
-export const TextInput = ({
-  field: {value, name},
-  form: {setFieldValue},
-  placeholder,
-}) => (
-  <StyledInput
-    onChange={e => setFieldValue(name, e.target.value)}
-    value={value}
-    placeholder={placeholder}
-  />
-);
+export const TextInput = props => <StyledInput {...props} />;
 
 export const StartButton = styled.button`
   background: #ffc613;
@@ -132,29 +124,50 @@ const columns = [
     Name: 'name',
     DataType: 'STRING',
     Filterable: true,
-    IsKey: true,
     Label: 'Nom du contrat',
     Searchable: true,
     Sortable: true,
   }),
-  new ColumnModel('email'),
+  new ColumnModel('id', {
+    Name: 'id',
+    IsKey: true,
+    Visible: false,
+  }),
 ];
 
 const Index = () => {
   const [contracts, setContracts] = useState([]);
   const [modalIsOpen, setModalIsOpen] = useState(false);
-  const [editorState, setEditorState] = useState(createEditorState());
+  const [selectedContract, setSelectedContract] = useState({
+    name: '',
+    html: '',
+  });
+
   useEffect(
     () =>
       firestore.collection('contracts').onSnapshot(querySnapshot => {
         let contractsFromFirestore = [];
         querySnapshot.forEach(doc => {
-          contractsFromFirestore = [...contractsFromFirestore, doc.data()];
+          contractsFromFirestore = [
+            ...contractsFromFirestore,
+            {...doc.data(), id: doc.id},
+          ];
         });
         setContracts(contractsFromFirestore);
       }),
     [],
   );
+
+  useEffect(() => {
+    const {id, ...data} = selectedContract;
+    console.log(selectedContract);
+    if (id) {
+      firestore
+        .collection('contracts')
+        .doc(id)
+        .update(data);
+    }
+  }, [selectedContract]);
 
   const toolbarButton = new ToolbarOptions({
     customItems: (
@@ -164,13 +177,10 @@ const Index = () => {
     ),
   });
 
-  const handleKeyCommand = command => {
-    const newState = RichUtils.handleKeyCommand(editorState, command);
-    if (newState) {
-      setEditorState(newState);
-      return 'handled';
-    }
-    return 'not-handled';
+  const editContract = id => {
+    const contract = contracts.find(contract => contract.id === id);
+    setSelectedContract(contract);
+    setModalIsOpen(true);
   };
 
   return (
@@ -191,7 +201,7 @@ const Index = () => {
         dataSource={contracts}
         gridName="Liste des contrats"
         onError="Erreur de mise a jour des contrats"
-        onRowClick={e => console.log('clicked on contrats', e)}
+        onRowClick={e => editContract(e.id)}
         toolbarOptions={toolbarButton}
       />
       <CenteredModal
@@ -201,44 +211,30 @@ const Index = () => {
         onClose={() => setModalIsOpen(false)}
       >
         <ModalChild>
-          <Formik
-            initialValues={{name: ''}}
-            onSubmit={({name}) => {
-              firestore
-                .collection('contracts')
-                .add({
-                  name,
-                  html: mediumDraftExporter(editorState.getCurrentContent()),
-                })
-                .catch(error => {
-                  console.error('Error adding document: ', error);
-                });
-            }}
-            render={() => (
-              <Column as={Form} padding={20}>
-                <div
-                  dangerouslySetInnerHTML={{
-                    __html: mediumDraftExporter(
-                      editorState.getCurrentContent(),
-                    ),
-                  }}
-                />
-                <Field
-                  component={TextInput}
-                  name="name"
-                  placeholder="Nom du contrat"
-                />
-                <ErrorMessage name="name" />
-                <Editor
-                  editorState={editorState}
-                  onChange={setEditorState}
-                  blockButtons={blockButtons}
-                  toolbarConfig={toolbarConfig}
-                />
-                <StartButton type="submit">Ajouter</StartButton>
-              </Column>
-            )}
-          />
+          <Column padding={20}>
+            <div
+              dangerouslySetInnerHTML={{
+                __html: selectedContract.html,
+              }}
+            />
+            <TextInput
+              placeholder="Nom du contrat"
+              onChange={e =>
+                setSelectedContract(c => ({...c, name: e.target.value}))
+              }
+              value={selectedContract.name}
+            />
+            <Editor
+              editorState={createEditorState(
+                selectedContract.html &&
+                  convertToRaw(mediumDraftImporter(selectedContract.html)),
+              )}
+              onChange={s => mediumDraftExporter(s.getCurrentContent())}
+              blockButtons={blockButtons}
+              toolbarConfig={toolbarConfig}
+            />
+            <StartButton type="submit">Ajouter</StartButton>
+          </Column>
         </ModalChild>
       </CenteredModal>
     </>

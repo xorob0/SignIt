@@ -9,6 +9,36 @@ import IconButton from '@material-ui/core/IconButton';
 import {Modal} from '@material-ui/core';
 import styled from 'styled-components';
 import {Formik, Field, Form, ErrorMessage} from 'formik';
+import {
+  ImageSideButton,
+  Block,
+  addNewBlock,
+  createEditorState,
+  Editor,
+  BLOCK_BUTTONS,
+} from 'medium-draft';
+import mediumDraftExporter from 'medium-draft/lib/exporter';
+import 'medium-draft/lib/index.css';
+
+const blockButtons = [
+  {
+    label: 'H1',
+    style: 'header-one',
+    icon: 'header',
+    description: 'Heading 1',
+  },
+  {
+    label: 'H2',
+    style: 'header-two',
+    icon: 'header',
+    description: 'Heading 2',
+  },
+].concat(BLOCK_BUTTONS);
+
+const toolbarConfig = {
+  block: ['unordered-list-item', 'header-one', 'header-three'],
+  inline: ['BOLD', 'UNDERLINE', 'hyperlink'],
+};
 
 const StyledInput = styled.input.attrs({type: 'text'})`
   background: rgba(100, 100, 100, 0.24);
@@ -113,6 +143,7 @@ const columns = [
 const Index = () => {
   const [contracts, setContracts] = useState([]);
   const [modalIsOpen, setModalIsOpen] = useState(false);
+  const [editorState, setEditorState] = useState(createEditorState());
   useEffect(
     () =>
       firestore.collection('contracts').onSnapshot(querySnapshot => {
@@ -133,6 +164,15 @@ const Index = () => {
     ),
   });
 
+  const handleKeyCommand = command => {
+    const newState = RichUtils.handleKeyCommand(editorState, command);
+    if (newState) {
+      setEditorState(newState);
+      return 'handled';
+    }
+    return 'not-handled';
+  };
+
   return (
     <>
       <div>
@@ -142,7 +182,7 @@ const Index = () => {
         </Link>
 
         <Link href="/VolonteersList">
-          <a>Liste de contrats</a>
+          <a>Liste de bénévoles</a>
         </Link>
       </div>
 
@@ -162,13 +202,13 @@ const Index = () => {
       >
         <ModalChild>
           <Formik
-            initialValues={{name: '', email: ''}}
-            onSubmit={({name, email}) => {
+            initialValues={{name: ''}}
+            onSubmit={({name}) => {
               firestore
                 .collection('contracts')
                 .add({
                   name,
-                  email,
+                  html: mediumDraftExporter(editorState.getCurrentContent()),
                 })
                 .catch(error => {
                   console.error('Error adding document: ', error);
@@ -176,18 +216,25 @@ const Index = () => {
             }}
             render={() => (
               <Column as={Form} padding={20}>
+                <div
+                  dangerouslySetInnerHTML={{
+                    __html: mediumDraftExporter(
+                      editorState.getCurrentContent(),
+                    ),
+                  }}
+                />
                 <Field
                   component={TextInput}
                   name="name"
                   placeholder="Nom du contrat"
                 />
                 <ErrorMessage name="name" />
-                <Field
-                  component={TextInput}
-                  name="email"
-                  placeholder="Email du contrat"
+                <Editor
+                  editorState={editorState}
+                  onChange={setEditorState}
+                  blockButtons={blockButtons}
+                  toolbarConfig={toolbarConfig}
                 />
-                <ErrorMessage name="email" />
                 <StartButton type="submit">Ajouter</StartButton>
               </Column>
             )}

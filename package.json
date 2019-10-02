@@ -5,8 +5,11 @@
   "license": "MIT",
   "dependencies": {
     "@material-ui/core": "^4.5.0",
+    "@zeit/next-css": "^1.0.1",
+    "draft-convert": "^2.1.8",
     "firebase": "^7.0.0",
     "formik": "^1.5.8",
+    "medium-draft": "^0.5.18",
     "next": "^9.0.7",
     "react": "^16.10.1",
     "react-dom": "^16.10.1",

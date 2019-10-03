@@ -1,10 +1,10 @@
 import {useEffect, useState, useRef} from 'react';
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import {DataGrid} from 'tubular-react';
 import {ColumnModel} from 'tubular-common';
 import firebase from '../utils/firebase';
 import SignaturePad from 'react-signature-pad-wrapper';
-import jsPDF from 'jspdf';
 import {CenteredModal, ModalChild, Row} from '../components/dumbs';
 
 const firestore = firebase.firestore();
@@ -171,7 +171,8 @@ const Index = () => {
               />
               <button
                 onClick={() => {
-                  const doc = new jsPDF();
+                  let jsPDF = require('jspdf');
+                  let doc = new jsPDF();
                   doc.fromHTML(
                     selectedContract.html
                       .replace('${lastname}', selectedVolonteer.lastname)
@@ -187,11 +188,15 @@ const Index = () => {
                     160,
                   );
 
-                  doc.save('a4.pdf');
+                  doc.save(
+                    `${selectedVolonteer.name}-${selectedVolonteer.firstname}_${selectedContract.name}.pdf`,
+                  );
 
                   storage
                     .ref()
-                    .child('firstfile.pdf')
+                    .child(
+                      `${selectedVolonteer.name}-${selectedVolonteer.firstname}_${selectedContract.name}.pdf`,
+                    )
                     .putString(doc.output('datauri'), 'data_url');
                 }}
               >

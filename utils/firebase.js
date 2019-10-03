@@ -1,5 +1,6 @@
 import firebase from 'firebase';
 require('firebase/firestore');
+require('firebase/storage');
 
 const config = {
   apiKey: 'AIzaSyA2zBzfHI7ekXXjjayg7f9x-JnVA5vsgqA',

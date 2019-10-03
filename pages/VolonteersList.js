@@ -7,7 +7,7 @@ import firebase from '../utils/firebase';
 import AddIcon from '@material-ui/icons/Add';
 import IconButton from '@material-ui/core/IconButton';
 import {Input, Button} from '@material-ui/core';
-import {Column, CenteredModal, ModalChild} from '../components/dumbs';
+import {Column, CenteredModal, ModalChild, Row} from '../components/dumbs';
 
 const firestore = firebase.firestore();
 
@@ -90,8 +90,7 @@ const Index = () => {
 
   return (
     <>
-      <div>
-        <p>Hello Next.js</p>
+      <Row>
         <Link href="/ContractsList">
           <a>Liste de contrats</a>
         </Link>
@@ -99,7 +98,7 @@ const Index = () => {
         <Link href="/VolonteersList">
           <a>Liste de bénévoles</a>
         </Link>
-      </div>
+      </Row>
 
       <DataGrid
         columns={columns}

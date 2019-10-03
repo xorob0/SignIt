@@ -5,7 +5,7 @@ import {ColumnModel} from 'tubular-common';
 import firebase from '../utils/firebase';
 import SignaturePad from 'react-signature-pad-wrapper';
 import jsPDF from 'jspdf';
-import {CenteredModal, ModalChild} from '../components/dumbs';
+import {CenteredModal, ModalChild, Row} from '../components/dumbs';
 
 const firestore = firebase.firestore();
 const storage = firebase.storage();
@@ -128,8 +128,7 @@ const Index = () => {
 
   return (
     <>
-      <div>
-        <p>Hello Next.js</p>
+      <Row>
         <Link href="/ContractsList">
           <a>Liste de contrats</a>
         </Link>
@@ -137,7 +136,7 @@ const Index = () => {
         <Link href="/VolonteersList">
           <a>Liste de bénévoles</a>
         </Link>
-      </div>
+      </Row>
 
       <DataGrid
         columns={columns}

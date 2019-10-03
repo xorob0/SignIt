@@ -11,7 +11,7 @@ import {createEditorState, Editor, BLOCK_BUTTONS} from 'medium-draft';
 import mediumDraftExporter from 'medium-draft/lib/exporter';
 import {convertToRaw} from 'draft-js';
 import mediumDraftImporter from 'medium-draft/lib/importer';
-import {Column, CenteredModal, ModalChild} from '../components/dumbs';
+import {Column, CenteredModal, ModalChild, Row} from '../components/dumbs';
 
 import 'medium-draft/lib/index.css';
 
@@ -122,8 +122,7 @@ const Index = () => {
 
   return (
     <>
-      <div>
-        <p>Hello Next.js</p>
+      <Row>
         <Link href="/ContractsList">
           <a>Liste de contrats</a>
         </Link>
@@ -131,7 +130,7 @@ const Index = () => {
         <Link href="/VolonteersList">
           <a>Liste de bénévoles</a>
         </Link>
-      </div>
+      </Row>
 
       <DataGrid
         columns={columns}

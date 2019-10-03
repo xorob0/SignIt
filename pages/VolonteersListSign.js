@@ -3,12 +3,13 @@ import Link from 'next/link';
 import {DataGrid} from 'tubular-react';
 import {ColumnModel} from 'tubular-common';
 import {ToolbarOptions} from 'tubular-react';
-import firestore from '../utils/firestore';
+import {firestore, storage} from '../utils/firebase';
 import AddIcon from '@material-ui/icons/Add';
 import IconButton from '@material-ui/core/IconButton';
 import {Modal} from '@material-ui/core';
 import styled from 'styled-components';
 import SignaturePad from 'react-signature-pad-wrapper';
+import jsPDF from 'jspdf';
 
 const TextInput = styled.input.attrs({type: 'text'})`
   background: rgba(100, 100, 100, 0.24);
@@ -118,8 +119,6 @@ const ChooseContract = ({setSelectedContract}) => {
       }),
     [],
   );
-
-  console.log(contracts);
 
   return (
     <>
@@ -248,11 +247,30 @@ const Index = () => {
                 ref={ref => (SignatureRef.current = ref)}
               />
               <button
-                onClick={() =>
-                  console.log(
+                onClick={() => {
+                  const doc = new jsPDF();
+                  doc.fromHTML(
+                    selectedContract.html
+                      .replace('${lastname}', selectedVolonteer.lastname)
+                      .replace('${firstname}', selectedVolonteer.firstname),
+                  );
+
+                  doc.addImage(
                     SignatureRef.current && SignatureRef.current.toDataURL(),
-                  )
-                }
+                    'JPEG',
+                    15,
+                    40,
+                    180,
+                    160,
+                  );
+
+                  doc.save('a4.pdf');
+
+                  storage
+                    .ref()
+                    .child('firstfile.pdf')
+                    .putString(doc.output('datauri'), 'data_url');
+                }}
               >
                 finir
               </button>

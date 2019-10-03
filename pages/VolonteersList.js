@@ -3,7 +3,7 @@ import Link from 'next/link';
 import {DataGrid} from 'tubular-react';
 import {ColumnModel} from 'tubular-common';
 import {ToolbarOptions} from 'tubular-react';
-import firestore from '../utils/firestore';
+import {firestore} from '../utils/firebase';
 import AddIcon from '@material-ui/icons/Add';
 import IconButton from '@material-ui/core/IconButton';
 import {Modal} from '@material-ui/core';

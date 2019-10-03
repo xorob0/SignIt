@@ -9,6 +9,7 @@
     "draft-convert": "^2.1.8",
     "firebase": "^7.0.0",
     "formik": "^1.5.8",
+    "jspdf": "^1.5.3",
     "medium-draft": "^0.5.18",
     "next": "^9.0.7",
     "react": "^16.10.1",

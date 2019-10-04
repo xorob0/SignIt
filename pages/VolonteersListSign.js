@@ -149,7 +149,11 @@ const Index = () => {
         aria-labelledby="simple-modal-title"
         aria-describedby="simple-modal-description"
         open={modalIsOpen}
-        onClose={() => setModalIsOpen(false)}
+        onClose={() => {
+          setModalIsOpen(false);
+          setSelectedVolonteer(undefined);
+          setSelectedContract(undefined);
+        }}
       >
         <ModalChild>
           {selectedContract ? (
@@ -188,9 +192,18 @@ const Index = () => {
                     160,
                   );
 
-                  doc.save(
-                    `${selectedVolonteer.name}-${selectedVolonteer.firstname}_${selectedContract.name}.pdf`,
-                  );
+                  // doc.save(
+                  //   `${selectedVolonteer.name}-${selectedVolonteer.firstname}_${selectedContract.name}.pdf`,
+                  // );
+                  //
+                  firestore
+                    .collection('volonteers')
+                    .doc(selectedVolonteer.id)
+                    .update({
+                      signature:
+                        SignatureRef.current &&
+                        SignatureRef.current.toDataURL(),
+                    });
 
                   storage
                     .ref()

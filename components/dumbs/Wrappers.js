@@ -16,6 +16,7 @@ export const Wrapper = styled.div`
   width: ${({width}) => width || 'unset'};
   height: ${({height}) => height || 'unset'};
   position: ${({absolute}) => (absolute ? 'absolute' : 'unset')};
+	overflow-y: ${({scroll}) => (scroll ? 'scroll' : 'unset')}
 
   ::-webkit-scrollbar {
     display: none;

@@ -8,10 +8,14 @@ export const ModalChild = styled(Column)`
   flex-grow: 1;
   margin: 20px;
   padding: 20px;
+  overflow-x: scroll;
+  max-width: 90vw;
+  max-height: 90vh;
 `;
 
 export const CenteredModal = styled(Modal)`
   display: flex;
   justify-content: center;
   align-items: center;
+  overflow: scroll;
 `;

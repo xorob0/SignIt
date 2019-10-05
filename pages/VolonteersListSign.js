@@ -5,7 +5,7 @@ import {DataGrid} from 'tubular-react';
 import {ColumnModel} from 'tubular-common';
 import firebase from '../utils/firebase';
 import SignaturePad from 'react-signature-pad-wrapper';
-import {CenteredModal, ModalChild, Row} from '../components/dumbs';
+import {Column, CenteredModal, ModalChild, Row} from '../components/dumbs';
 
 const firestore = firebase.firestore();
 const storage = firebase.storage();
@@ -157,7 +157,7 @@ const Index = () => {
       >
         <ModalChild>
           {selectedContract ? (
-            <>
+            <Column>
               <div
                 dangerouslySetInnerHTML={{
                   __html: selectedContract.html
@@ -166,6 +166,7 @@ const Index = () => {
                 }}
               ></div>
               <SignaturePad
+                style={{minHeight: 100}}
                 options={{
                   minWidth: 5,
                   maxWidth: 10,
@@ -211,11 +212,15 @@ const Index = () => {
                       `${selectedVolonteer.lastname}-${selectedVolonteer.firstname}_${selectedContract.name}.pdf`,
                     )
                     .putString(doc.output('datauri'), 'data_url');
+
+                  setModalIsOpen(false);
+                  setSelectedContract(undefined);
+                  setSelectedVolonteer(undefined);
                 }}
               >
                 finir
               </button>
-            </>
+            </Column>
           ) : (
             <ChooseContract setSelectedContract={setSelectedContract} />
           )}
